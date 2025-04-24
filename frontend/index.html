@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Draw Something</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <h1>
+      <span class="edge left-edge"></span>
+      🎨 Draw Something!
+      <span class="edge right-edge"></span>
+    </h1>
+    <div id="config-group">
+      <div id="color-picker" class="picker">
+        <ul id="color-list" class="item-list">
+          <li data-color="#000000"></li>
+          <li data-color="#FF6F61"></li>
+          <li data-color="#4DB6AC"></li>
+          <li data-color="#FFD54F"></li>
+          <li data-color="#BA68C8"></li>
+          <li data-color="#42A5F5"></li>
+          <li data-color="#455A64"></li>
+        </ul>
+      </div>
+      <div id="width-picker" class="picker">
+        <ul id="width-list" class="item-list">
+          <li data-width="2"></li>
+          <li data-width="4"></li>
+          <li data-width="6"></li>
+          <li data-width="8"></li>
+          <li data-width="10"></li>
+          <li data-width="12"></li>
+        </ul>
+      </div>
+    </div>
+    <div id="frame">
+      <div class="buttons">
+        <button class="ai-button" id="predict-btn">🔍 Predict</button>
+        <button class="ai-button" id="enhance-btn">✨ Enhance</button>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="label" id="prediction">Prediction: ???</div>
+
+      <div class="image-preview" id="enhancedPreview">
+        <em>Enhanced version will appear here</em>
+      </div>
+
+      <div class="save-buttons">
+        <button id="save-drawing-btn">💾 Save Drawing</button>
+        <button id="save-enhanced-btn">💾 Save Enhanced</button>
+      </div>
+    </div>
+
+    <script src="js/main.js" type="module"></script>
+  </body>
+</html>

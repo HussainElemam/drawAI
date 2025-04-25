@@ -6,26 +6,35 @@ let myFrame,
   saveBtn,
   colorPickerBtn,
   widthPickerBtn,
+  eraserPickerBtn,
   colorList,
   widthList,
+  eraserList,
   colorElements,
   widthElements,
+  eraserElements,
   predictionElement,
   enhancedPreview,
   predictBtn,
   enhanceBtn,
   saveDrawingBtn,
   saveEnhancedBtn,
-  enhancedImage;
+  enhancedImage,
+  clearBtn;
 
+const Option = {
+  DRAWING: 1,
+  ERASING: 0,
+};
+
+let selected = Option.DRAWING;
 let drawing = false;
 let points = [];
-let lastx = 0,
-  lasty = 0;
 
 let config = {
   line_width: 2,
   color: "#000000",
+  eraser_width: 8,
 };
 
 window.addEventListener("load", () => {
@@ -67,48 +76,83 @@ function initializeControls() {
   saveBtn = document.getElementById("save-btn");
   colorPickerBtn = document.getElementById("color-picker");
   widthPickerBtn = document.getElementById("width-picker");
+  eraserPickerBtn = document.getElementById("eraser-picker");
   colorList = document.getElementById("color-list");
   widthList = document.getElementById("width-list");
+  eraserList = document.getElementById("eraser-list");
   colorElements = colorList.querySelectorAll("li");
   widthElements = widthList.querySelectorAll("li");
+  eraserElements = eraserList.querySelectorAll("li");
   predictionElement = document.getElementById("prediction");
   enhancedPreview = document.getElementById("enhancedPreview");
   predictBtn = document.getElementById("predict-btn");
   enhanceBtn = document.getElementById("enhance-btn");
   saveDrawingBtn = document.getElementById("save-drawing-btn");
   saveEnhancedBtn = document.getElementById("save-enhanced-btn");
+  clearBtn = document.getElementById("clear-btn");
 
   if (colorPickerBtn) {
     colorPickerBtn.style.backgroundColor = config.color;
+    colorPickerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      console.log("color picker clicked");
+      if (selected === Option.DRAWING) {
+        colorList.classList.toggle("open");
+        widthList.classList.remove("open");
+        eraserList.classList.remove("open");
+      } else {
+        widthPickerBtn.classList.add("selected");
+        eraserPickerBtn.classList.remove("selected");
+        selected = Option.DRAWING;
+      }
+    });
   }
 
-  if (colorPickerBtn) {
-    colorPickerBtn.addEventListener("click", () => {
-      colorList.classList.toggle("open");
+  if (widthPickerBtn) {
+    widthPickerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (selected === Option.DRAWING) {
+        widthList.classList.toggle("open");
+        eraserList.classList.remove("open");
+        colorList.classList.remove("open");
+      } else {
+        widthPickerBtn.classList.add("selected");
+        eraserPickerBtn.classList.remove("selected");
+        selected = Option.DRAWING;
+      }
+    });
+  }
+
+  if (eraserPickerBtn) {
+    eraserPickerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (selected === Option.ERASING) {
+        eraserList.classList.toggle("open");
+        colorList.classList.remove("open");
+        widthList.classList.remove("open");
+      } else {
+        eraserPickerBtn.classList.add("selected");
+        widthPickerBtn.classList.remove("selected");
+        selected = Option.ERASING;
+      }
     });
   }
 
   if (colorList) {
     colorList.addEventListener("blur", () => {
-      console.log("blur on color picker");
       colorList.classList.remove("open");
     });
   }
 
   if (widthList) {
     widthList.addEventListener("blur", () => {
-      console.log("blur on color picker");
-      colorList.classList.remove("open");
+      widthList.classList.remove("open");
     });
   }
 
-  if (widthPickerBtn) {
-    widthPickerBtn.addEventListener("click", () => {
-      widthList.classList.toggle("open");
-    });
-    widthPickerBtn.addEventListener("blur", () => {
-      console.log("blur on width picker");
-      widthList.classList.toggle("open");
+  if (eraserList) {
+    eraserList.addEventListener("blur", () => {
+      eraserList.classList.remove("open");
     });
   }
 
@@ -116,11 +160,13 @@ function initializeControls() {
     colorElements.forEach((el) => {
       let myColor = el.dataset.color;
       el.style.setProperty("--color", myColor);
-      el.addEventListener("click", () => {
+      el.addEventListener("click", (e) => {
+        // e.stopPropagation();
         config.color = myColor;
         colorPickerBtn.style.backgroundColor = myColor;
         let myShadow = "0 0 0 3px " + myColor + "66";
         colorPickerBtn.style.boxShadow = myShadow;
+        console.log("now color should be: ", myColor);
       });
     });
   }
@@ -129,12 +175,27 @@ function initializeControls() {
     widthElements.forEach((el) => {
       let myWidth = el.dataset.width;
       el.style.setProperty("--line-width", myWidth + "px");
-      el.addEventListener("click", () => {
+      el.addEventListener("click", (e) => {
         config.line_width = myWidth;
         widthPickerBtn.style.setProperty("--line-width", +myWidth + "px");
         ctx.lineWidth = myWidth;
       });
     });
+  }
+
+  if (eraserElements) {
+    eraserElements.forEach((el) => {
+      let myWidth = el.dataset.width;
+      el.style.setProperty("--line-width", myWidth + "px");
+      el.addEventListener("click", () => {
+        config.eraser_width = myWidth;
+        ctx.lineWidth = myWidth;
+      });
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener("click", clear);
   }
 
   if (predictBtn) {
@@ -199,6 +260,8 @@ function bindCanvasEvents() {
 function startDrawing(e) {
   colorList.classList.remove("open");
   widthList.classList.remove("open");
+  eraserList.classList.remove("open");
+
   const [x, y] = getMousePosition(e);
   points.push({
     x: x,
@@ -225,9 +288,15 @@ function draw(e) {
     ctx.drawImage(memCanvas, 0, 0);
 
     // Set current styles before drawing
-    ctx.lineWidth = config.line_width;
-    ctx.strokeStyle = config.color;
-    ctx.fillStyle = config.color;
+    if (selected === Option.DRAWING) {
+      ctx.lineWidth = config.line_width;
+      ctx.strokeStyle = config.color;
+      ctx.fillStyle = config.color;
+    } else {
+      ctx.lineWidth = config.eraser_width;
+      ctx.strokeStyle = "#ffffff";
+      ctx.fillStyle = "#ffffff";
+    }
 
     let [x, y] = getMousePosition(e);
     points.push({
@@ -292,14 +361,19 @@ function getMousePosition(e) {
 // }
 
 async function predictDrawing() {
+  predictionElement.textContent = "predicting ...";
+  predictionElement.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
   // Create a temporary canvas
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = canvas.width;   // Match original canvas size
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = canvas.width; // Match original canvas size
   tempCanvas.height = canvas.height; // Match original canvas size
-  const tempCtx = tempCanvas.getContext('2d');
+  const tempCtx = tempCanvas.getContext("2d");
 
   // 1. Fill the temporary canvas with a white background
-  tempCtx.fillStyle = '#FFFFFF'; // White color
+  tempCtx.fillStyle = "#FFFFFF"; // White color
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
   // 2. Draw the current visible canvas content onto the temporary canvas
@@ -313,85 +387,66 @@ async function predictDrawing() {
 
   // Now 'blob' contains your drawing on a white background
   // Send this blob to the API
-  try { // Added basic try/catch for API call error
-      let res = await getPrediction(blob);
-      console.log(res);
+  try {
+    // Added basic try/catch for API call error
+    let res = await getPrediction(blob);
 
-      // Handle potential errors returned from the backend API
-      if (res.error) {
-          predictionElement.textContent = `Error: ${res.error}`;
-      } else {
-          predictionElement.textContent = res.prediction || "No prediction received.";
-      }
-
-      predictionElement.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+    // Handle potential errors returned from the backend API
+    if (res.error) {
+      predictionElement.textContent = `Error: ${res.error}`;
+    } else {
+      predictionElement.textContent =
+        "prediction: " + res.prediction || "No prediction received.";
+    }
   } catch (error) {
-      console.error("Error calling getPrediction:", error);
-      predictionElement.textContent = "Error sending drawing for prediction.";
-      predictionElement.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+    console.error("Error calling getPrediction:", error);
+    predictionElement.textContent = "Error sending drawing for prediction.";
   }
 }
 
-// async function enhanceDrawing() {
-//   const blob = await new Promise((resolve) =>
-//     canvas.toBlob(resolve, "image/png")
-//   );
-//   const enhancedURL = await getEnhanced(blob);
-//   console.log("enhancedURL", enhancedURL);
-
-//   enhancedImage = document.createElement("img");
-//   enhancedImage.src = enhancedURL;
-//   enhancedPreview.appendChild(enhancedImage);
-//   // enhancedPreview.scrollIntoView({
-//   //   behavior: "smooth",
-//   //   block: "bottom",
-//   // });
-// }
-
 async function enhanceDrawing() {
-  const tempCanvas = document.createElement('canvas');
+  enhancedPreview.textContent = "getting you enhanced drawing ...";
+  enhancedPreview.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+  const tempCanvas = document.createElement("canvas");
   tempCanvas.width = canvas.width;
   tempCanvas.height = canvas.height;
-  const tempCtx = tempCanvas.getContext('2d');
+  const tempCtx = tempCanvas.getContext("2d");
 
-  tempCtx.fillStyle = '#FFFFFF';
+  tempCtx.fillStyle = "#FFFFFF";
   tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
   tempCtx.drawImage(canvas, 0, 0);
 
   const blob = await new Promise((resolve) =>
-      tempCanvas.toBlob(resolve, "image/png")
+    tempCanvas.toBlob(resolve, "image/png")
   );
 
-  try { // Added basic try/catch
-      const enhancedURL = await getEnhanced(blob); // Send blob with background
-      console.log("enhancedURL", enhancedURL);
+  try {
+    // Added basic try/catch
+    const enhancedURL = await getEnhanced(blob); // Send blob with background
+    console.log("enhancedURL", enhancedURL);
 
-      // Clear previous enhanced image if any
-      enhancedPreview.innerHTML = ''; // Clear the container
+    // Clear previous enhanced image if any
+    enhancedPreview.innerHTML = ""; // Clear the container
 
-      enhancedImage = document.createElement("img");
-      enhancedImage.onload = () => {
-          // Optional: Revoke the object URL once the image is loaded
-          // to free up memory, but ensure it's not needed elsewhere.
-          // URL.revokeObjectURL(enhancedURL);
-      }
-      enhancedImage.onerror = () => {
-           console.error("Failed to load enhanced image URL:", enhancedURL);
-           // Maybe revoke here too on error
-           // URL.revokeObjectURL(enhancedURL);
-      }
-      enhancedImage.src = enhancedURL;
-      enhancedPreview.appendChild(enhancedImage);
-
-  } catch(error) {
-      console.error("Error calling getEnhanced:", error);
-      // Display error to user?
+    enhancedImage = document.createElement("img");
+    enhancedImage.onload = () => {
+      // Optional: Revoke the object URL once the image is loaded
+      // to free up memory, but ensure it's not needed elsewhere.
+      // URL.revokeObjectURL(enhancedURL);
+    };
+    enhancedImage.onerror = () => {
+      console.error("Failed to load enhanced image URL:", enhancedURL);
+      // Maybe revoke here too on error
+      // URL.revokeObjectURL(enhancedURL);
+    };
+    enhancedImage.src = enhancedURL;
+    enhancedPreview.appendChild(enhancedImage);
+  } catch (error) {
+    console.error("Error calling getEnhanced:", error);
+    // Display error to user?
   }
 }
 

@@ -277,34 +277,122 @@ function getMousePosition(e) {
 }
 
 // ========== Stub Functions ==========
+// async function predictDrawing() {
+//   const blob = await new Promise((resolve) =>
+//     canvas.toBlob(resolve, "image/png")
+//   );
+
+//   let res = await getPrediction(blob);
+//   console.log(res);
+//   predictionElement.textContent = res["prediction"];
+//   predictionElement.scrollIntoView({
+//     behavior: "smooth",
+//     block: "start",
+//   });
+// }
+
 async function predictDrawing() {
+  // Create a temporary canvas
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width;   // Match original canvas size
+  tempCanvas.height = canvas.height; // Match original canvas size
+  const tempCtx = tempCanvas.getContext('2d');
+
+  // 1. Fill the temporary canvas with a white background
+  tempCtx.fillStyle = '#FFFFFF'; // White color
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+  // 2. Draw the current visible canvas content onto the temporary canvas
+  // This includes content from memCanvas already drawn onto the main canvas
+  tempCtx.drawImage(canvas, 0, 0);
+
+  // 3. Get the blob from the temporary canvas (which now has a white background)
   const blob = await new Promise((resolve) =>
-    canvas.toBlob(resolve, "image/png")
+    tempCanvas.toBlob(resolve, "image/png")
   );
 
-  let res = await getPrediction(blob);
-  console.log(res);
-  predictionElement.textContent = res["prediction"];
-  predictionElement.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
+  // Now 'blob' contains your drawing on a white background
+  // Send this blob to the API
+  try { // Added basic try/catch for API call error
+      let res = await getPrediction(blob);
+      console.log(res);
+
+      // Handle potential errors returned from the backend API
+      if (res.error) {
+          predictionElement.textContent = `Error: ${res.error}`;
+      } else {
+          predictionElement.textContent = res.prediction || "No prediction received.";
+      }
+
+      predictionElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  } catch (error) {
+      console.error("Error calling getPrediction:", error);
+      predictionElement.textContent = "Error sending drawing for prediction.";
+      predictionElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  }
 }
 
-async function enhanceDrawing() {
-  const blob = await new Promise((resolve) =>
-    canvas.toBlob(resolve, "image/png")
-  );
-  const enhancedURL = await getEnhanced(blob);
-  console.log("enhancedURL", enhancedURL);
+// async function enhanceDrawing() {
+//   const blob = await new Promise((resolve) =>
+//     canvas.toBlob(resolve, "image/png")
+//   );
+//   const enhancedURL = await getEnhanced(blob);
+//   console.log("enhancedURL", enhancedURL);
 
-  enhancedImage = document.createElement("img");
-  enhancedImage.src = enhancedURL;
-  enhancedPreview.appendChild(enhancedImage);
-  // enhancedPreview.scrollIntoView({
-  //   behavior: "smooth",
-  //   block: "bottom",
-  // });
+//   enhancedImage = document.createElement("img");
+//   enhancedImage.src = enhancedURL;
+//   enhancedPreview.appendChild(enhancedImage);
+//   // enhancedPreview.scrollIntoView({
+//   //   behavior: "smooth",
+//   //   block: "bottom",
+//   // });
+// }
+
+async function enhanceDrawing() {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  const tempCtx = tempCanvas.getContext('2d');
+
+  tempCtx.fillStyle = '#FFFFFF';
+  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+  tempCtx.drawImage(canvas, 0, 0);
+
+  const blob = await new Promise((resolve) =>
+      tempCanvas.toBlob(resolve, "image/png")
+  );
+
+  try { // Added basic try/catch
+      const enhancedURL = await getEnhanced(blob); // Send blob with background
+      console.log("enhancedURL", enhancedURL);
+
+      // Clear previous enhanced image if any
+      enhancedPreview.innerHTML = ''; // Clear the container
+
+      enhancedImage = document.createElement("img");
+      enhancedImage.onload = () => {
+          // Optional: Revoke the object URL once the image is loaded
+          // to free up memory, but ensure it's not needed elsewhere.
+          // URL.revokeObjectURL(enhancedURL);
+      }
+      enhancedImage.onerror = () => {
+           console.error("Failed to load enhanced image URL:", enhancedURL);
+           // Maybe revoke here too on error
+           // URL.revokeObjectURL(enhancedURL);
+      }
+      enhancedImage.src = enhancedURL;
+      enhancedPreview.appendChild(enhancedImage);
+
+  } catch(error) {
+      console.error("Error calling getEnhanced:", error);
+      // Display error to user?
+  }
 }
 
 function saveDrawing() {

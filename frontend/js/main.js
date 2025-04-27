@@ -58,6 +58,11 @@ function initializeCanvas() {
   ctx = canvas.getContext("2d");
   memCtx = memCanvas.getContext("2d");
 
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  memCtx.fillStyle = "#FFFFFF";
+  memCtx.fillRect(0, 0, memCanvas.width, memCanvas.height);
+
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
   ctx.lineWidth = config.line_width;
@@ -229,6 +234,11 @@ function resizeCanvas() {
   memCanvas.width = canvas.width;
   memCanvas.height = canvas.height;
 
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  memCtx.fillStyle = "#FFFFFF";
+  memCtx.fillRect(0, 0, memCanvas.width, memCanvas.height);
+
   // Restore the content
   ctx.drawImage(tempCanvas, 0, 0);
   memCtx.drawImage(tempCanvas, 0, 0);
@@ -249,10 +259,17 @@ function resizeCanvas() {
 
 // ========== Canvas Events ==========
 function bindCanvasEvents() {
+  // Mouse events
   canvas.addEventListener("mousedown", startDrawing);
   canvas.addEventListener("mousemove", draw);
   canvas.addEventListener("mouseup", stopDrawing);
   canvas.addEventListener("mouseout", stopDrawing);
+
+  // Touch events
+  canvas.addEventListener("touchstart", handleTouchStart);
+  canvas.addEventListener("touchmove", handleTouchMove);
+  canvas.addEventListener("touchend", stopDrawing);
+  canvas.addEventListener("touchcancel", stopDrawing);
 
   window.addEventListener("resize", resizeCanvas);
 }
@@ -359,6 +376,8 @@ function getMousePosition(e) {
 //     block: "start",
 //   });
 // }
+
+// function
 
 async function predictDrawing() {
   predictionElement.textContent = "predicting ...";
@@ -470,4 +489,24 @@ function saveEnhanced() {
   } else {
     alert("No image yet");
   }
+}
+
+function handleTouchStart(e) {
+  e.preventDefault(); // Prevent scrolling
+  const touch = e.touches[0];
+  const mouseEvent = new MouseEvent("mousedown", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  startDrawing(mouseEvent);
+}
+
+function handleTouchMove(e) {
+  e.preventDefault(); // Prevent scrolling
+  const touch = e.touches[0];
+  const mouseEvent = new MouseEvent("mousemove", {
+    clientX: touch.clientX,
+    clientY: touch.clientY
+  });
+  draw(mouseEvent);
 }

@@ -1,5 +1,5 @@
-const BASE = "https://drawai-production-4194.up.railway.app";
-// const BASE = "http://localhost:8080";
+// const BASE = "https://drawai-production-4194.up.railway.app";
+const BASE = "http://localhost:8080";
 
 async function getPrediction(blob) {
   const formData = new FormData();

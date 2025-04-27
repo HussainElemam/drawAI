@@ -35,7 +35,11 @@ def enhance():
     image = Image.open(file.stream)
 
     # Do your thing here and return proccessed image
-    text_input = "Can you generate a more refined version of this sketch keep the image sketch-like if possible and dont add too many details stick to the essence of the provided sketch"
+    text_input = """
+    Can you generate a more refined version of this sketch,
+    keep the image sketch-like if possible and dont add too many details,
+    stick to the essence of the provided sketch
+    """
     response = client.models.generate_content(
     model="gemini-2.0-flash-exp-image-generation",
     contents=[text_input, image],
@@ -55,5 +59,5 @@ def enhance():
     return send_file(img_io, mimetype='image/png')
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5001)))
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 8080)))
 

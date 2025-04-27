@@ -3,7 +3,6 @@ import { getEnhanced, getPrediction } from "./api.js";
 let canvas, ctx, memCanvas, memCtx;
 
 let myFrame,
-  saveBtn,
   colorPickerBtn,
   widthPickerBtn,
   eraserPickerBtn,
@@ -49,9 +48,12 @@ function initializeCanvas() {
   myFrame = document.getElementById("frame");
   myFrame.appendChild(canvas);
 
+  // Check if device is mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   // Set both canvases to the same size
   canvas.width = window.innerWidth - 40;
-  canvas.height = window.innerHeight - 35;
+  canvas.height = isMobile ? 500 : window.innerHeight - 35;
   memCanvas.width = canvas.width;
   memCanvas.height = canvas.height;
 
@@ -78,7 +80,6 @@ function initializeCanvas() {
 }
 
 function initializeControls() {
-  saveBtn = document.getElementById("save-btn");
   colorPickerBtn = document.getElementById("color-picker");
   widthPickerBtn = document.getElementById("width-picker");
   eraserPickerBtn = document.getElementById("eraser-picker");
@@ -100,7 +101,6 @@ function initializeControls() {
     colorPickerBtn.style.backgroundColor = config.color;
     colorPickerBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      console.log("color picker clicked");
       if (selected === Option.DRAWING) {
         colorList.classList.toggle("open");
         widthList.classList.remove("open");
@@ -171,7 +171,6 @@ function initializeControls() {
         colorPickerBtn.style.backgroundColor = myColor;
         let myShadow = "0 0 0 3px " + myColor + "66";
         colorPickerBtn.style.boxShadow = myShadow;
-        console.log("now color should be: ", myColor);
       });
     });
   }
@@ -230,7 +229,7 @@ function resizeCanvas() {
 
   // Resize both canvases
   canvas.width = window.innerWidth - 40;
-  canvas.height = window.innerHeight - 35;
+  canvas.height = canvas.height;
   memCanvas.width = canvas.width;
   memCanvas.height = canvas.height;
 
@@ -327,6 +326,10 @@ function draw(e) {
 function clear() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   memCtx.clearRect(0, 0, memCanvas.width, memCanvas.height);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  memCtx.fillStyle = "#FFFFFF";
+  memCtx.fillRect(0, 0, memCanvas.width, memCanvas.height);
 }
 
 function drawPoints(ctx, points) {
@@ -363,49 +366,13 @@ function getMousePosition(e) {
 }
 
 // ========== Stub Functions ==========
-// async function predictDrawing() {
-//   const blob = await new Promise((resolve) =>
-//     canvas.toBlob(resolve, "image/png")
-//   );
-
-//   let res = await getPrediction(blob);
-//   console.log(res);
-//   predictionElement.textContent = res["prediction"];
-//   predictionElement.scrollIntoView({
-//     behavior: "smooth",
-//     block: "start",
-//   });
-// }
-
-// function
-
 async function predictDrawing() {
   predictionElement.textContent = "predicting ...";
-  predictionElement.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-  });
-  // Create a temporary canvas
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = canvas.width; // Match original canvas size
-  tempCanvas.height = canvas.height; // Match original canvas size
-  const tempCtx = tempCanvas.getContext("2d");
 
-  // 1. Fill the temporary canvas with a white background
-  tempCtx.fillStyle = "#FFFFFF"; // White color
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-  // 2. Draw the current visible canvas content onto the temporary canvas
-  // This includes content from memCanvas already drawn onto the main canvas
-  tempCtx.drawImage(canvas, 0, 0);
-
-  // 3. Get the blob from the temporary canvas (which now has a white background)
   const blob = await new Promise((resolve) =>
-    tempCanvas.toBlob(resolve, "image/png")
+    canvas.toBlob(resolve, "image/png")
   );
 
-  // Now 'blob' contains your drawing on a white background
-  // Send this blob to the API
   try {
     // Added basic try/catch for API call error
     let res = await getPrediction(blob);
@@ -425,36 +392,23 @@ async function predictDrawing() {
 
 async function enhanceDrawing() {
   enhancedPreview.textContent = "getting you enhanced drawing ...";
-  enhancedPreview.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-  });
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-  const tempCtx = tempCanvas.getContext("2d");
-
-  tempCtx.fillStyle = "#FFFFFF";
-  tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-  tempCtx.drawImage(canvas, 0, 0);
 
   const blob = await new Promise((resolve) =>
-    tempCanvas.toBlob(resolve, "image/png")
+    canvas.toBlob(resolve, "image/png")
   );
 
   try {
     // Added basic try/catch
     const enhancedURL = await getEnhanced(blob); // Send blob with background
-    console.log("enhancedURL", enhancedURL);
-
     // Clear previous enhanced image if any
     enhancedPreview.innerHTML = ""; // Clear the container
 
     enhancedImage = document.createElement("img");
     enhancedImage.onload = () => {
-      // Optional: Revoke the object URL once the image is loaded
-      // to free up memory, but ensure it's not needed elsewhere.
-      // URL.revokeObjectURL(enhancedURL);
+      enhancedPreview.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     };
     enhancedImage.onerror = () => {
       console.error("Failed to load enhanced image URL:", enhancedURL);
@@ -496,7 +450,7 @@ function handleTouchStart(e) {
   const touch = e.touches[0];
   const mouseEvent = new MouseEvent("mousedown", {
     clientX: touch.clientX,
-    clientY: touch.clientY
+    clientY: touch.clientY,
   });
   startDrawing(mouseEvent);
 }
@@ -506,7 +460,7 @@ function handleTouchMove(e) {
   const touch = e.touches[0];
   const mouseEvent = new MouseEvent("mousemove", {
     clientX: touch.clientX,
-    clientY: touch.clientY
+    clientY: touch.clientY,
   });
   draw(mouseEvent);
 }

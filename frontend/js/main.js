@@ -175,7 +175,6 @@ function initializeControls() {
     });
   }
 
-<<<<<<< HEAD
   // const customColorLi = document.querySelector(".custom-color");
   // const customColorInput = document.getElementById("custom-color-input");
   // customColorLi.style.backgroundColor = customColorLi.dataset.color;
@@ -199,8 +198,6 @@ function initializeControls() {
     colorPickerBtn.style.backgroundColor = myColor;
   });
 
-=======
->>>>>>> 0b2ec04e4e901866d9e2bba51c0a249602019ef7
   if (widthElements) {
     widthElements.forEach((el) => {
       let myWidth = el.dataset.width;

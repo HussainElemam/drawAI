@@ -86,7 +86,7 @@ function initializeControls() {
   colorList = document.getElementById("color-list");
   widthList = document.getElementById("width-list");
   eraserList = document.getElementById("eraser-list");
-  colorElements = colorList.querySelectorAll("li");
+  colorElements = colorList.querySelectorAll("li:not(.custom-color)");
   widthElements = widthList.querySelectorAll("li");
   eraserElements = eraserList.querySelectorAll("li");
   predictionElement = document.getElementById("prediction");
@@ -174,19 +174,6 @@ function initializeControls() {
       });
     });
   }
-
-  // const customColorLi = document.querySelector(".custom-color");
-  // const customColorInput = document.getElementById("custom-color-input");
-  // customColorLi.style.backgroundColor = customColorLi.dataset.color;
-  // customColorLi.addEventListener("click", () => {
-  //   customColorInput.click();
-  // });
-  // customColorInput.addEventListener("input", () => {
-  //   const myColor = customColorInput.value;
-  //   config.color = myColor;
-  //   colorPickerBtn.style.backgroundColor = myColor;
-  //   customColorLi.style.backgroundColor = myColor;
-  // });
 
   const alwan = new Alwan("#custom-color-ref", {
     classname: "custom-color-picker",

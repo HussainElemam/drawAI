@@ -86,7 +86,7 @@ function initializeControls() {
   colorList = document.getElementById("color-list");
   widthList = document.getElementById("width-list");
   eraserList = document.getElementById("eraser-list");
-  colorElements = colorList.querySelectorAll("li:not(.custom-color)");
+  colorElements = colorList.querySelectorAll("li");
   widthElements = widthList.querySelectorAll("li");
   eraserElements = eraserList.querySelectorAll("li");
   predictionElement = document.getElementById("prediction");
@@ -175,6 +175,7 @@ function initializeControls() {
     });
   }
 
+<<<<<<< HEAD
   // const customColorLi = document.querySelector(".custom-color");
   // const customColorInput = document.getElementById("custom-color-input");
   // customColorLi.style.backgroundColor = customColorLi.dataset.color;
@@ -198,6 +199,8 @@ function initializeControls() {
     colorPickerBtn.style.backgroundColor = myColor;
   });
 
+=======
+>>>>>>> 0b2ec04e4e901866d9e2bba51c0a249602019ef7
   if (widthElements) {
     widthElements.forEach((el) => {
       let myWidth = el.dataset.width;

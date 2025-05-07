@@ -35,10 +35,14 @@ def enhance():
     image = Image.open(file.stream)
 
     # Do your thing here and return proccessed image
+    # text_input = """
+    # Can you generate a more refined version of this sketch,
+    # keep the image sketch-like if possible and dont add too many details,
+    # stick to the essence of the provided sketch
+    # """
     text_input = """
-    Can you generate a more refined version of this sketch,
-    keep the image sketch-like if possible and dont add too many details,
-    stick to the essence of the provided sketch
+    generate a petterand more interesting version of this sketch
+    while keeping the sketch-like feel of it and keep the main elements 
     """
     response = client.models.generate_content(
     model="gemini-2.0-flash-exp-image-generation",

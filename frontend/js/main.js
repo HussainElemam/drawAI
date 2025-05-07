@@ -175,17 +175,27 @@ function initializeControls() {
     });
   }
 
-  const customColorLi = document.querySelector(".custom-color");
-  const customColorInput = document.getElementById("custom-color-input");
-  customColorLi.style.backgroundColor = customColorLi.dataset.color;
-  customColorLi.addEventListener("click", () => {
-    customColorInput.click();
+  // const customColorLi = document.querySelector(".custom-color");
+  // const customColorInput = document.getElementById("custom-color-input");
+  // customColorLi.style.backgroundColor = customColorLi.dataset.color;
+  // customColorLi.addEventListener("click", () => {
+  //   customColorInput.click();
+  // });
+  // customColorInput.addEventListener("input", () => {
+  //   const myColor = customColorInput.value;
+  //   config.color = myColor;
+  //   colorPickerBtn.style.backgroundColor = myColor;
+  //   customColorLi.style.backgroundColor = myColor;
+  // });
+
+  const alwan = new Alwan("#custom-color-ref", {
+    classname: "custom-color-picker",
   });
-  customColorInput.addEventListener("input", () => {
-    const myColor = customColorInput.value;
+
+  alwan.on("change", (e) => {
+    const myColor = e.hex;
     config.color = myColor;
     colorPickerBtn.style.backgroundColor = myColor;
-    customColorLi.style.backgroundColor = myColor;
   });
 
   if (widthElements) {

@@ -152,17 +152,10 @@ h1 {
   background-color: var(--color);
 }
 
-.custom-color {
-  padding: 2px;
-}
-
-.custom-color img {
-  width: 100%;
+#custom-color-ref {
   height: 100%;
-}
-
-#custom-color-input {
-  display: none;
+  width: 100%;
+  border-radius: 50%;
 }
 
 #width-list li {

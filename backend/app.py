@@ -41,7 +41,8 @@ def enhance():
     # stick to the essence of the provided sketch
     # """
     text_input = """
-    generate a petterand more interesting version of this sketch
+    generate a petterand more interesting version of this sketch,
+    add more details and make it as if it was drawn by an artist,
     while keeping the sketch-like feel of it and keep the main elements 
     """
     response = client.models.generate_content(

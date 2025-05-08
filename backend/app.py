@@ -20,7 +20,7 @@ def predict():
         image = Image.open(file.stream)
         response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=[image, "What do you see in this image? respond with only up to three words as your prediction"]
+        contents=[image, "Predict what I am trying to draw, respond with only up to three words as your prediction"]
         )  
         prediction = response.text.strip()
         return jsonify({"prediction": prediction})

@@ -20,7 +20,7 @@ def predict():
         image = Image.open(file.stream)
         response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=[image, "What do you see in this image? respond with only one word as your prediction"]
+        contents=[image, "Predict what I am trying to draw, respond with up to three words (less words is better)"]
         )  
         prediction = response.text.strip()
         return jsonify({"prediction": prediction})
@@ -46,11 +46,11 @@ def enhance():
     while keeping the sketch-like feel of it and keep the main elements 
     """
     response = client.models.generate_content(
-    model="gemini-2.0-flash-exp-image-generation",
-    contents=[text_input, image],
-    config=types.GenerateContentConfig(
-      response_modalities=['TEXT', 'IMAGE']
-        )
+      model="gemini-2.0-flash-exp-image-generation",
+      contents=[text_input, image],
+      config=types.GenerateContentConfig(
+        response_modalities=['TEXT', 'IMAGE']
+      )
     )
     for part in response.candidates[0].content.parts:
         if part.text is not None:

@@ -86,7 +86,7 @@ function initializeControls() {
   colorList = document.getElementById("color-list");
   widthList = document.getElementById("width-list");
   eraserList = document.getElementById("eraser-list");
-  colorElements = colorList.querySelectorAll("li");
+  colorElements = colorList.querySelectorAll("li:not(.custom-color)");
   widthElements = widthList.querySelectorAll("li");
   eraserElements = eraserList.querySelectorAll("li");
   predictionElement = document.getElementById("prediction");
@@ -174,6 +174,16 @@ function initializeControls() {
       });
     });
   }
+
+  const alwan = new Alwan("#custom-color-ref", {
+    classname: "custom-color-picker",
+  });
+
+  alwan.on("change", (e) => {
+    const myColor = e.hex;
+    config.color = myColor;
+    colorPickerBtn.style.backgroundColor = myColor;
+  });
 
   if (widthElements) {
     widthElements.forEach((el) => {

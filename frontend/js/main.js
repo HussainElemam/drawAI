@@ -377,7 +377,7 @@ function getMousePosition(e) {
 
 // ========== Stub Functions ==========
 async function predictDrawing() {
-  predictionElement.textContent = "predicting ...";
+  predictionElement.textContent = "predicting (first request may take a while) ...";
 
   const blob = await new Promise((resolve) =>
     canvas.toBlob(resolve, "image/png")
@@ -401,7 +401,7 @@ async function predictDrawing() {
 }
 
 async function enhanceDrawing() {
-  enhancedPreview.textContent = "getting you enhanced drawing ...";
+  enhancedPreview.textContent = "getting you enhanced drawing (first request may take a while) ...";
 
   const blob = await new Promise((resolve) =>
     canvas.toBlob(resolve, "image/png")

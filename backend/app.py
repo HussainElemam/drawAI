@@ -19,7 +19,7 @@ def predict():
         file = request.files['image']
         image = Image.open(file.stream)
         response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=[image, "Predict what I am trying to draw, respond with up to three words (less words is better)"]
         )  
         prediction = response.text.strip()
@@ -46,7 +46,7 @@ def enhance():
     while keeping the sketch-like feel of it and keep the main elements 
     """
     response = client.models.generate_content(
-      model="gemini-2.0-flash-exp-image-generation",
+      model="gemini-2.5-flash-image",
       contents=[text_input, image],
       config=types.GenerateContentConfig(
         response_modalities=['TEXT', 'IMAGE']

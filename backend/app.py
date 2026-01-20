@@ -13,6 +13,10 @@ app = Flask(__name__)
 CORS(app)
 client = genai.Client(api_key=os.getenv('GOOGLE_API_KEY'))
 
+@app.route('/')
+def health():
+    return jsonify({"status": "ok"})
+
 @app.route('/api/predict', methods=['POST'])
 def predict():
     try:
@@ -34,12 +38,6 @@ def enhance():
     file = request.files['image']
     image = Image.open(file.stream)
 
-    # Do your thing here and return proccessed image
-    # text_input = """
-    # Can you generate a more refined version of this sketch,
-    # keep the image sketch-like if possible and dont add too many details,
-    # stick to the essence of the provided sketch
-    # """
     text_input = """
     generate a petterand more interesting version of this sketch,
     add more details and make it as if it was drawn by an artist,
